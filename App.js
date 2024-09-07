@@ -52,20 +52,21 @@ function App() {
       setSetores(comboSetores.filter(s => hierarquiaUnidade.setores.includes(s.codigo)));
       setCargos(comboCargos.filter(c => hierarquiaUnidade.cargos.includes(c.codigo)));
     } else {
-      setSetores(setores);
-      setCargos(cargos);
+      setSetores(comboSetores);
+      setCargos(comboCargos);
     }
   }, [unidadeSelecionada])
 
   useEffect(() => {
     if (setorSelecionado.length > 0) {
       const setoresSelecionados = hierarquia.setores.filter(s => setorSelecionado.includes(s.codigo));
-      
-      
       const unidadesFiltradas = comboUnidades.filter(u => setoresSelecionados.every(s => s.unidades.includes(u.codigo)));
       const cargosFiltrados = comboCargos.filter(c => setoresSelecionados.every(s => s.cargos.includes(c.codigo)));
       setUnidades(unidadesFiltradas);
       setCargos(cargosFiltrados);
+    }else{
+      setUnidades(comboUnidades);
+      setCargos(comboCargos);
     }
   }, [setorSelecionado])
 
@@ -74,6 +75,9 @@ function App() {
       const hierarquiaCargo = hierarquia.cargos.find(u => u.codigo == parseInt(cargoSelecionado));
       setUnidades(comboUnidades.filter(s => hierarquiaCargo.unidades.includes(s.codigo)));
       setSetores(comboSetores.filter(c => hierarquiaCargo.setores.includes(c.codigo)));
+    }else{
+      setUnidades(comboUnidades);
+      setSetores(comboSetores);
     }
   }, [cargoSelecionado]);
 
