@@ -1,27 +1,46 @@
 import { useEffect, useState } from 'react';
 
-const dados = {
+
+const comboUnidades = [
+  { codigo: 1, nome: 'Unidade 1' },
+  { codigo: 2, nome: 'Unidade 2' },
+  { codigo: 3, nome: 'Unidade 3' },
+]
+
+const comboSetores = [
+  { codigo: 1, nome: 'Setor 1' },
+  { codigo: 2, nome: 'Setor 2' },
+  { codigo: 3, nome: 'Setor 3' },
+]
+
+const comboCargos = [
+  { codigo: 1, nome: 'Cargo 1' },
+  { codigo: 2, nome: 'Cargo 2' },
+  { codigo: 3, nome: 'Cargo 3' },
+]
+
+const hierarquia = {
   unidades: [
-    { id: 1, nome: 'Unidade 1', setores: [1, 2], cargos: [1, 3] },
-    { id: 2, nome: 'Unidade 2', setores: [2, 3], cargos: [2, 3] },
-    { id: 3, nome: 'Unidade 3', setores: [1, 3], cargos: [1, 2] },
+    { codigo: 1, setores: [1, 2], cargos: [1, 3] },
+    { codigo: 2, setores: [2, 3], cargos: [2, 3] },
+    { codigo: 3, setores: [1, 3], cargos: [1, 2] },
   ],
   setores: [
-    { id: 1, nome: 'Setor 1', unidades: [1, 3], cargos: [1] },
-    { id: 2, nome: 'Setor 2', unidades: [1, 2], cargos: [2, 3] },
-    { id: 3, nome: 'Setor 3', unidades: [2, 3], cargos: [1, 2, 3] },
+    { codigo: 1, unidades: [1, 3], cargos: [1] },
+    { codigo: 2, unidades: [1, 2], cargos: [2, 3] },
+    { codigo: 3, unidades: [2, 3], cargos: [1, 2, 3] },
   ],
   cargos: [
-    { id: 1, nome: 'Cargo 1', unidades: [1, 3], setores: [1, 3] },
-    { id: 2, nome: 'Cargo 2', unidades: [2, 3], setores: [2, 3] },
-    { id: 3, nome: 'Cargo 3', unidades: [1, 2], setores: [2, 3] },
+    { codigo: 1, unidades: [1, 3], setores: [1, 3] },
+    { codigo: 2, unidades: [2, 3], setores: [2, 3] },
+    { codigo: 3, unidades: [1, 2], setores: [2, 3] },
   ],
 };
 
 function App() {
-  const [unidades, setUnidades] = useState(dados.unidades);
-  const [setores, setSetores] = useState(dados.setores);
-  const [cargos, setCargos] = useState(dados.cargos);
+  const [unidades, setUnidades] = useState(comboUnidades);
+  const [setores, setSetores] = useState(comboSetores);
+  const [cargos, setCargos] = useState(comboCargos);
 
   const [unidadeSelecionada, setUnidadeSelecionada] = useState(null);
   const [setorSelecionado, setSetorSelecionado] = useState([]);
@@ -29,21 +48,22 @@ function App() {
 
   useEffect(() => {
     if (unidadeSelecionada) {
-      const unidade = dados.unidades.find(u => u.id == parseInt(unidadeSelecionada));
-      setSetores(dados.setores.filter(s => unidade.setores.includes(s.id)));
-      setCargos(dados.cargos.filter(c => unidade.cargos.includes(c.id)));
+      const hierarquiaUnidade = hierarquia.unidades.find(u => u.codigo == parseInt(unidadeSelecionada));
+      setSetores(comboSetores.filter(s => hierarquiaUnidade.setores.includes(s.codigo)));
+      setCargos(comboCargos.filter(c => hierarquiaUnidade.cargos.includes(c.codigo)));
     } else {
-      setSetores(dados.setores);
-      setCargos(dados.cargos);
+      setSetores(setores);
+      setCargos(cargos);
     }
   }, [unidadeSelecionada])
 
   useEffect(() => {
-    debugger;
     if (setorSelecionado.length > 0) {
-      const setoresSelecionados = dados.setores.filter(s => setorSelecionado.includes(s.id));
-      const unidadesFiltradas = dados.unidades.filter(u => setoresSelecionados.every(s => s.unidades.includes(u.id)));
-      const cargosFiltrados = dados.cargos.filter(c => setoresSelecionados.every(s => s.cargos.includes(c.id)));
+      const setoresSelecionados = hierarquia.setores.filter(s => setorSelecionado.includes(s.codigo));
+      
+      
+      const unidadesFiltradas = comboUnidades.filter(u => setoresSelecionados.every(s => s.unidades.includes(u.codigo)));
+      const cargosFiltrados = comboCargos.filter(c => setoresSelecionados.every(s => s.cargos.includes(c.codigo)));
       setUnidades(unidadesFiltradas);
       setCargos(cargosFiltrados);
     }
@@ -51,9 +71,9 @@ function App() {
 
   useEffect(() => {
     if (cargoSelecionado) {
-      const cargo = dados.cargos.find(c => c.id === parseInt(cargoSelecionado));
-      setUnidades(dados.unidades.filter(u => cargo.unidades.includes(u.id)));
-      setSetores(dados.setores.filter(s => cargo.setores.includes(s.id)));
+      const hierarquiaCargo = hierarquia.cargos.find(u => u.codigo == parseInt(cargoSelecionado));
+      setUnidades(comboUnidades.filter(s => hierarquiaCargo.unidades.includes(s.codigo)));
+      setSetores(comboSetores.filter(c => hierarquiaCargo.setores.includes(c.codigo)));
     }
   }, [cargoSelecionado]);
 
@@ -64,7 +84,7 @@ function App() {
         <select onChange={(e) => setUnidadeSelecionada(e.target.value)} value={unidadeSelecionada || ''}>
           <option value="">Selecione a unidade</option>
           {unidades.map(unidade => (
-            <option key={unidade.id} value={unidade.id}>
+            <option key={unidade.codigo} value={unidade.codigo}>
               {unidade.nome}
             </option>
           ))}
@@ -75,7 +95,7 @@ function App() {
         <label>Setor</label>
         <select multiple onChange={(e) => setSetorSelecionado([...e.target.selectedOptions].map(o => parseInt(o.value)))} value={setorSelecionado || []}>
           {setores.map(setor => (
-            <option key={setor.id} value={setor.id}>
+            <option key={setor.codigo} value={setor.codigo}>
               {setor.nome}
             </option>
           ))}
@@ -87,7 +107,7 @@ function App() {
         <select onChange={(e) => setCargoSelecionado(e.target.value)} value={cargoSelecionado || ''}>
           <option value="">Selecione o cargo</option>
           {cargos.map(cargo => (
-            <option key={cargo.id} value={cargo.id}>
+            <option key={cargo.codigo} value={cargo.codigo}>
               {cargo.nome}
             </option>
           ))}
